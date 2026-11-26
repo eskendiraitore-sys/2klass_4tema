@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "StudentSubmission": {
+      "title": "StudentSubmission",
+      "description": "Student progress and quiz submission for Digital Literacy Grade 2 Paragraph 8.",
+      "type": "object",
+      "properties": {
+        "studentName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Full name of the student."
+        },
+        "studentClass": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Class label, e.g. 2A."
+        },
+        "language": {
+          "type": "string",
+          "enum": ["ru", "kz"],
+          "description": "Language version completed by the student."
+        },
+        "flippedCardsCount": {
+          "type": "integer",
+          "description": "Number of theory 3D cards opened (0 to 4)."
+        },
+        "videoWatched": {
+          "type": "boolean",
+          "description": "Whether the student opened the video practice."
+        },
+        "workbookCompletedCount": {
+          "type": "integer",
+          "description": "Number of completed workbook tasks (0 to 7)."
+        },
+        "quizTaken": {
+          "type": "boolean",
+          "description": "Whether the 5-question quiz was completed."
+        },
+        "quizScore": {
+          "type": "integer",
+          "description": "Quiz score from 0 to 5."
+        },
+        "homeworkCheckedCount": {
+          "type": "integer",
+          "description": "Checked homework items (0 to 4)."
+        },
+        "lessonCompleted": {
+          "type": "boolean",
+          "description": "Whether the student earned the final 3D medal."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["submitted", "reviewed"],
+          "description": "Submission review state."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of submission."
+        }
+      },
+      "required": [
+        "studentName",
+        "studentClass",
+        "language",
+        "flippedCardsCount",
+        "videoWatched",
+        "workbookCompletedCount",
+        "quizTaken",
+        "quizScore",
+        "homeworkCheckedCount",
+        "lessonCompleted",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/submissions/{submissionId}": {
+      "schema": {
+        "$ref": "#/entities/StudentSubmission"
+      },
+      "description": "Student lesson results submitted from the textbook, readable and manageable only by the owner teacher."
+    }
+  }
+}

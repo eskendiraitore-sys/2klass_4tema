@@ -1,0 +1,6 @@
+{
+  "name": "Цифровая грамотность · 2 класс · § 8",
+  "description": "Интерактивная 3D-книга и рабочая тетрадь по теме «Создание собственного персонажа» в графическом редакторе Scratch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

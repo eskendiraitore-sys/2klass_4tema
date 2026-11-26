@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'eskendiraitore@gmail.com';
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasAll([
+          'studentName',
+          'studentClass',
+          'language',
+          'flippedCardsCount',
+          'videoWatched',
+          'workbookCompletedCount',
+          'quizTaken',
+          'quizScore',
+          'homeworkCheckedCount',
+          'lessonCompleted',
+          'status',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'studentName',
+          'studentClass',
+          'language',
+          'flippedCardsCount',
+          'videoWatched',
+          'workbookCompletedCount',
+          'quizTaken',
+          'quizScore',
+          'homeworkCheckedCount',
+          'lessonCompleted',
+          'status',
+          'createdAt'
+        ])
+        && data.studentName is string && data.studentName.size() >= 2 && data.studentName.size() <= 80
+        && data.studentClass is string && data.studentClass.size() >= 1 && data.studentClass.size() <= 20
+        && data.language in ['ru', 'kz']
+        && data.flippedCardsCount is int && data.flippedCardsCount >= 0 && data.flippedCardsCount <= 4
+        && data.videoWatched is bool
+        && data.workbookCompletedCount is int && data.workbookCompletedCount >= 0 && data.workbookCompletedCount <= 7
+        && data.quizTaken is bool
+        && data.quizScore is int && data.quizScore >= 0 && data.quizScore <= 5
+        && data.homeworkCheckedCount is int && data.homeworkCheckedCount >= 0 && data.homeworkCheckedCount <= 4
+        && data.lessonCompleted is bool
+        && data.status in ['submitted', 'reviewed']
+        && data.createdAt is timestamp;
+    }
+
+    match /submissions/{submissionId} {
+      allow get: if isValidId(submissionId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(submissionId)
+        && isValidSubmission(incoming())
+        && incoming().status == 'submitted'
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(submissionId)
+        && isAdmin()
+        && isValidSubmission(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+      allow delete: if isValidId(submissionId) && isAdmin();
+    }
+  }
+}
